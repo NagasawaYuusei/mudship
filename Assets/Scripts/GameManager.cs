@@ -11,11 +11,17 @@ public class GameManager
     /// GameManagerのインスタンス
     /// </summary>
     public static GameManager Instance = new GameManager();
+    public static Player CurrentPlayer;
+    public static InGameState InGameState;
+    public static Player LosePlayer;
+    public static bool InAttack;
+    public static bool Feint;
+    public static float AttackTimer;
     #endregion
 
     #region 変数
-    GameState _gameState;
     bool _isPause;
+    GameObject _readyPanel;
     #endregion
 
     //コンストラクタ
@@ -42,33 +48,12 @@ public class GameManager
     /// ゲーム終了時のイベント
     /// </summary>
     public event Action OnGameEndEvent;
+    /// <summary>
+    /// ターン交代のイベント
+    /// </summary>
+    public event Action OnChangeTurn;
 
     #endregion
-    /// <summary>
-    /// ゲームの遷移
-    /// </summary>
-    /// <param name="mode"></param>
-    public void GameStateChange(GameState mode)
-    {
-        if (_gameState == mode)
-        {
-            Debug.Log("GameStateが一緒です");
-            return;
-        }
-
-        switch (mode)
-        {
-            case GameState.GameReady:
-                break;
-            case GameState.InGame:
-                break;
-            case GameState.GameFinish:
-                break;
-        }
-
-        _gameState = mode;
-        Debug.Log($"モードを切り替えた {mode}");
-    }
 
     /// <summary>
     /// 変数の初期設定
@@ -76,27 +61,42 @@ public class GameManager
     /// <param name="attachment"></param>
     public void OnSetup(GameManagerAttachment attachment)
     {
-        GameStateChange(GameState.GameReady);
+        int num = UnityEngine.Random.Range(0, 2);
+        CurrentPlayer = (Player)num;
+        _readyPanel = attachment.ReadyPanel;
+        Ready();
+    }
+
+    public void Ready()
+    {
+        InGameState = InGameState.Ready;
+        CurrentPlayer = (Player)(((int)CurrentPlayer + 1) % 2);
+        Debug.Log($"現在のターンは{CurrentPlayer}です");
+        _readyPanel?.SetActive(true);
+    }
+
+    public void Game()
+    {
+        InGameState = InGameState.Game;
+        _readyPanel?.SetActive(false);
+        Debug.Log("GameStart");
+        test.Instance.LogChange("こうげきしてね");
     }
 
     /// <summary>
     /// ゲームオーバー時に呼ぶ
     /// </summary>
-    public void OnGameOver()
+    public void OnGameOver(Player player)
     {
+        LosePlayer = player;
         OnGameOverEvent?.Invoke();
-        GameStateChange(GameState.GameFinish);
         Debug.Log("OnGameOver");
+        SceneChangeController.LoadScene("ResultScene");
     }
 
-    /// <summary>
-    /// ゲームクリア時に呼ぶ
-    /// </summary>
-    public void OnGameEnd()
+    public void ResetGame()
     {
-        OnGameEndEvent?.Invoke();
-        GameStateChange(GameState.GameFinish);
-        Debug.Log("OnGameClear");
+        LosePlayer = 0;
     }
 
     /// <summary>
@@ -104,31 +104,12 @@ public class GameManager
     /// </summary>
     void OnUpdate()
     {
-        if (_gameState == GameState.GameFinish) return;
-
-        if (_gameState == GameState.GameReady)
+        if (InGameState == InGameState.Ready)
         {
-            
-        }
-
-        if (Input.GetButtonDown("ポーズキー"))
-        {
-            if (_gameState != GameState.InGame) return;
-
-            if (_isPause)
+            if (Input.GetKeyDown(KeyCode.Return))
             {
-                OnResume?.Invoke();
-                Cursor.lockState = CursorLockMode.Locked;
-                Debug.Log("ポーズ解除");
+                Game();
             }
-            else
-            {
-                OnPause?.Invoke();
-                Cursor.lockState = CursorLockMode.None;
-                Debug.Log("ポーズ開始");
-            }
-
-            _isPause = !_isPause;
         }
     }
 
@@ -142,9 +123,15 @@ public class GameManager
     #endregion
 }
 
-public enum GameState
+public enum InGameState
 {
-    GameReady = 0,
-    InGame = 1,
-    GameFinish = 2,
+    None,
+    Ready,
+    Game
+}
+
+public enum Player
+{
+    Player1,
+    Player2,
 }

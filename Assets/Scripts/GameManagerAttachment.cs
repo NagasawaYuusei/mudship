@@ -6,11 +6,11 @@ using UnityEngine.UI;
 public class GameManagerAttachment : MonoBehaviour
 {
     #region 変数
-
+    [SerializeField] GameObject _readyPanel;
     #endregion
 
     #region プロパティ
-   
+    public GameObject ReadyPanel => _readyPanel;
     #endregion
 
     #region デリゲート
