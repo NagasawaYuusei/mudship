@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
@@ -31,6 +32,7 @@ public class PlayerScript : MonoBehaviour
                     GameManager.AttackTimer = 0;
                     if(GameManager.Feint)
                     {
+                        GameManager.Feint = false;
                         test.Instance.LogChange("‚Ğ‚Á‚©‚©‚ç‚È‚©‚Á‚½");
                         GameManager.Instance.Ready();
                         return;
@@ -119,13 +121,29 @@ public class PlayerScript : MonoBehaviour
     }
 
     bool AttackInput()
-    { 
-        return Input.GetMouseButtonDown(0);
+    {
+        if (Input.GetMouseButton(0))
+        {
+            if (Math.Abs(Input.GetAxis("Mouse X")) > 3)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     bool FakeAttackInput()
     {
-        return Input.GetMouseButtonDown(1);
+        if (Input.GetMouseButton(1))
+        {
+            if (Math.Abs(Input.GetAxis("Mouse X")) > 3)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     bool DeffenceInput()
