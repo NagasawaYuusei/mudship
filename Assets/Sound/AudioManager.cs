@@ -78,7 +78,8 @@ public class AudioManager : MonoBehaviour
             CountDown,
             End,
             ClickButton,
-            ChangeScene
+            ChangeScene,
+            Attack
         }
 
         public SE Se;

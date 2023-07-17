@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections;
 
 /// <summary>
 /// ƒQ[ƒ€‚ÌŠÇ—ƒNƒ‰ƒX
@@ -80,7 +81,6 @@ public class GameManager
         InGameState = InGameState.Game;
         _readyPanel?.SetActive(false);
         Debug.Log("GameStart");
-        test.Instance.LogChange("‚±‚¤‚°‚«‚µ‚Ä‚Ë");
     }
 
     /// <summary>
